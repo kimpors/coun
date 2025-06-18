@@ -1,9 +1,9 @@
 #include <string.h>
+#include <stdbool.h>
 #include "arg.h"
 
-char *pop(void);
-char *peek(void);
-char *push(char *s);
+bool isempty(void);
+char *fpush(char *s);
 
 // evaluate arguments and returns flags
 size_t argeval(int argc, char *argv[])
@@ -18,20 +18,40 @@ size_t argeval(int argc, char *argv[])
 			return flags;
 		}
 
-		if ((!flags || flags & ARG_FILE) && **argv != '-')
+		if (**argv != '-')
 		{
-			flags |= ARG_FILE;
-			push(*argv);
+			fpush(*argv);
 			continue;
+		}
+
+		while (*++(*argv))
+		{
+			switch (**argv)
+			{
+				case 'b': flags |= ARG_BYTE;	break;
+				case 'c': flags |= ARG_CHAR;	break;
+				case 'w': flags |= ARG_WORD;	break;
+				case 'l': flags |= ARG_LINE;	break;
+				case 'h': flags |= ARG_HELP;	return flags;
+				default:
+						  fprintf(stderr, "wrong argument\n");
+						  flags |= ARG_ERROR;
+						  return flags;
+			}
 		}
 	}
 
+	if (!isempty()) flags |= ARG_FILE;
 	return flags;
 }
 
 void help(void)
 {
-	printf("hello from help\n");
+	printf("-h -> show help\n");
+	printf("-b -> show bytes\n");
+	printf("-c -> show chars\n");
+	printf("-w -> show words\n");
+	printf("-l -> show lines\n");
 }
 
 #define BUF_MAX	12
@@ -41,7 +61,13 @@ struct {
 	char *d[BUF_MAX];	// data
 } buf;
 
-char *push(char *s)
+bool isempty(void)
+{
+	return !buf.i;
+}
+
+// push filename
+char *fpush(char *s)
 {
 	if (buf.i > BUF_MAX - 1) return NULL;
 	buf.d[buf.i] = s;
@@ -49,13 +75,15 @@ char *push(char *s)
 	return buf.d[buf.i++];
 }
 
-char *pop(void)
+// pop filename
+char *fpop(void)
 {
 	if (buf.i < 1) return NULL;
 	return buf.d[--buf.i];
 }
 
-char *peek(void)
+// peek filename
+char *fpeek(void)
 {
 	if (buf.i < 1 || buf.i > BUF_MAX - 1) return NULL;
 	return buf.d[buf.i];

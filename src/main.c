@@ -7,14 +7,17 @@
 #include <string.h>
 #include "arg.h"
 
-#define BYTES 0
-#define CHARS 1
-#define WORDS 2
-#define LINES 3
-#define BUF_MAX 4
+#define BYTES		0
+#define CHARS		1
+#define WORDS		2
+#define LINES 		3
+#define BUF_MAX 	4
+#define LINE_MAX	1024
 
+static wchar_t sbuf[LINE_MAX];
 static size_t buf[BUF_MAX]; // buf[0] - bytes, buf[1] - chars,
 					  		// buf[2] - words, buf[3] - lines
+void coun(wchar_t *s);
 
 int main(int argc, char *argv[])
 {
@@ -27,14 +30,18 @@ int main(int argc, char *argv[])
 
 	size_t flags = argeval(argc, argv);
 
-	if (flags & ARG_HELP)
+	if (flags & ARG_ERROR) return -1;
+	else if (flags & ARG_HELP)
 	{
 		help();
+		return 0;
 	}
-	else if (flags & ARG_FILE)
+
+	if (flags & ARG_FILE)
 	{
 		char *ps;
-		while ((ps = pop()))
+		printf("");
+		while ((ps = fpop()))
 		{
 			if (!(fp = fopen(ps, "r")))
 			{
@@ -43,29 +50,48 @@ int main(int argc, char *argv[])
 				return -1;
 			}
 
-			while ((c = fgetwc(fp)) != WEOF)
+			while (fgetws(sbuf, LINE_MAX, fp))
 			{
-				if (c == '\n') buf[LINES]++;
-
-				if (iswspace(c) && isword)
-				{
-					isword = false;
-					buf[WORDS]++;
-				}
-				else
-				{
-					isword = true;
-				}
-
-				buf[CHARS]++;
-				buf[BYTES] += wctomb(mbuf, c);
+			 	coun(sbuf);
 			}
 
-			printf("file\tbytes\tchars\twords\tlines\n");
-			printf("%s\t%ld\t%ld\t%ld\t%ld\n", ps, buf[0], buf[1], buf[2], buf[3]);
-			memset((void *)buf, 0, sizeof(buf));
+			printf("%s\t%ld\t%ld\t%ld", ps, buf[CHARS], buf[WORDS], buf[LINES]);
+			memset(buf, 0, sizeof(buf));
 		}
+
+		return 0;
+	}
+
+	while (fgetws(sbuf, LINE_MAX, stdin))
+	{
+		coun(sbuf);
+		printf("%ld\t%ld\t%ld\n", buf[CHARS], buf[WORDS], buf[LINES]);
+		memset(buf, 0, sizeof(buf));
 	}
 
 	return 0;
+}
+
+void coun(wchar_t *s)
+{
+	bool isword = false;
+	char mbuf[MB_CUR_MAX];
+
+	while (*s)
+	{
+		if (*s == '\n') buf[LINES]++;
+
+		if (iswspace(*s) && isword)
+		{
+			isword = false;
+			buf[WORDS]++;
+		}
+		else
+		{
+			isword = true;
+		}
+
+		buf[CHARS]++;
+		buf[BYTES] += wctomb(mbuf, *s++);
+	}
 }
