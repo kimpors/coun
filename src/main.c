@@ -5,6 +5,7 @@
 #include <wctype.h>
 #include <stdbool.h>
 #include <string.h>
+#include "error.h"
 #include "arg.h"
 
 #define BYTES		0
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
 		{
 			if (!(fp = fopen(ps, "r")))
 			{
-				fprintf(stderr, "file errro\n");
+				ERROR_MSG("can't open file: %s", ps);
 				fclose(fp);
 				return -1;
 			}

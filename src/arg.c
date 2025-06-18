@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdbool.h>
+#include "error.h"
 #include "arg.h"
 
 bool isempty(void);
@@ -34,7 +35,7 @@ size_t argeval(int argc, char *argv[])
 				case 'l': flags |= ARG_LINE;	break;
 				case 'h': flags |= ARG_HELP;	return flags;
 				default:
-						  fprintf(stderr, "wrong argument\n");
+						  ERROR_MSG("wrong argument: %s -> %c", *argv, **argv);
 						  flags |= ARG_ERROR;
 						  return flags;
 			}
@@ -47,7 +48,6 @@ size_t argeval(int argc, char *argv[])
 		flags |= ARG_WORD;
 		flags |= ARG_LINE;
 	}
-
 
 	if (!isempty()) flags |= ARG_FILE;
 	return flags;
@@ -89,7 +89,6 @@ char *fpush(char *s)
 {
 	if (buf.i > BUF_MAX - 1) return NULL;
 	buf.d[buf.i] = s;
-	// strcpy(buf.d[buf.i], s);
 	return buf.d[buf.i++];
 }
 
