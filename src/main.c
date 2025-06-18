@@ -18,6 +18,7 @@ static wchar_t sbuf[LINE_MAX];
 static size_t buf[BUF_MAX]; // buf[0] - bytes, buf[1] - chars,
 					  		// buf[2] - words, buf[3] - lines
 void coun(wchar_t *s);
+void cprintf(size_t flags);
 
 int main(int argc, char *argv[])
 {
@@ -55,7 +56,8 @@ int main(int argc, char *argv[])
 			 	coun(sbuf);
 			}
 
-			printf("%s\t%ld\t%ld\t%ld", ps, buf[CHARS], buf[WORDS], buf[LINES]);
+			printf("%s\t", ps);
+			cprintf(flags);
 			memset(buf, 0, sizeof(buf));
 		}
 
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
 	while (fgetws(sbuf, LINE_MAX, stdin))
 	{
 		coun(sbuf);
-		printf("%ld\t%ld\t%ld\n", buf[CHARS], buf[WORDS], buf[LINES]);
+		cprintf(flags);
 		memset(buf, 0, sizeof(buf));
 	}
 
@@ -93,5 +95,28 @@ void coun(wchar_t *s)
 
 		buf[CHARS]++;
 		buf[BYTES] += wctomb(mbuf, *s++);
+	}
+}
+
+void cprintf(size_t flags)
+{
+	if (flags & ARG_BYTE)
+	{
+		printf("%ldb\t", buf[BYTES]);
+	}
+
+	if (flags & ARG_CHAR)
+	{
+		printf("%ldc\t", buf[CHARS]);
+	}
+
+	if (flags & ARG_WORD)
+	{
+		printf("%ldw\t", buf[WORDS]);
+	}
+
+	if (flags & ARG_LINE)
+	{
+		printf("%ldl\t", buf[LINES]);
 	}
 }

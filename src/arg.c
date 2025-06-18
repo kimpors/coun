@@ -41,6 +41,14 @@ size_t argeval(int argc, char *argv[])
 		}
 	}
 
+	if (!flags)
+	{
+		flags |= ARG_CHAR;
+		flags |= ARG_WORD;
+		flags |= ARG_LINE;
+	}
+
+
 	if (!isempty()) flags |= ARG_FILE;
 	return flags;
 }
