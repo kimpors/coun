@@ -47,11 +47,21 @@ size_t argeval(int argc, char *argv[])
 
 void help(void)
 {
-	printf("-h -> show help\n");
-	printf("-b -> show bytes\n");
-	printf("-c -> show chars\n");
-	printf("-w -> show words\n");
-	printf("-l -> show lines\n");
+	printf("Usage:\n\tcoun [args?] [files?]\n\n");
+
+	printf("Options:\n");
+	printf("\t-b\t\t\t| Show only bytes\n");
+	printf("\t-c\t\t\t| Show only chars\n");
+	printf("\t-w\t\t\t| Show only words\n");
+	printf("\t-l\t\t\t| Show only lines\n");
+	printf("\t-h\t\t\t| Show help\n");
+	printf("\t--help\t\t\t| Show help\n");
+
+	printf("Examples:\n");
+	printf("\tcoun --help\t\t| Will show help\n");
+	printf("\tcoun\t\t\t| Will read from stdin\n");
+	printf("\tcoun file.txt\t\t| Will read from file\n");
+	printf("\tcoun -bwl file.txt\t| Will read from file and show bytes, words and lines\n");
 }
 
 #define BUF_MAX	12
