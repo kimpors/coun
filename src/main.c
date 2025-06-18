@@ -1,26 +1,29 @@
 #include <locale.h>
 #include <stdio.h>
-#include <ctype.h>
+#include <stdlib.h>
 #include <wchar.h>
+#include <wctype.h>
+#include <stdbool.h>
+#include <string.h>
 #include "arg.h"
 
-#define LINE_MAX 1024
+#define BYTES 0
+#define CHARS 1
+#define WORDS 2
+#define LINES 3
+#define BUF_MAX 4
 
-static char sbuf[LINE_MAX];
-
-size_t couword(char *s);
-size_t couline(char *s);
-size_t couchar(char *s);
-size_t coubyte(char *s);
+static size_t buf[BUF_MAX]; // buf[0] - bytes, buf[1] - chars,
+					  		// buf[2] - words, buf[3] - lines
 
 int main(int argc, char *argv[])
 {
 	setlocale(LC_CTYPE, "");
+
+	wint_t c;
 	FILE *fp = stdin;
-	size_t chars = 0;
-	size_t words = 0;
-	size_t lines = 0;
-	size_t bytes = 0;
+	bool isword = false;
+	char mbuf[MB_CUR_MAX];
 
 	size_t flags = argeval(argc, argv);
 
@@ -35,77 +38,34 @@ int main(int argc, char *argv[])
 		{
 			if (!(fp = fopen(ps, "r")))
 			{
-				fprintf(stderr, "file errro");
+				fprintf(stderr, "file errro\n");
 				fclose(fp);
 				return -1;
 			}
 
-			while (fgets(sbuf, LINE_MAX, fp))
+			while ((c = fgetwc(fp)) != WEOF)
 			{
-				bytes += coubyte(sbuf);
-				chars += couchar(sbuf);
-				words += couword(sbuf);
-				lines += 1;
+				if (c == '\n') buf[LINES]++;
+
+				if (iswspace(c) && isword)
+				{
+					isword = false;
+					buf[WORDS]++;
+				}
+				else
+				{
+					isword = true;
+				}
+
+				buf[CHARS]++;
+				buf[BYTES] += wctomb(mbuf, c);
 			}
 
-			printf("file: %s\n", ps);
-			printf("bytes: %ld\n", bytes);
-			printf("chars: %ld\n", chars);
-			printf("words: %ld\n", words);
-			printf("lines: %ld\n", lines);
-
-			bytes = chars = words = lines = 0;
+			printf("file\tbytes\tchars\twords\tlines\n");
+			printf("%s\t%ld\t%ld\t%ld\t%ld\n", ps, buf[0], buf[1], buf[2], buf[3]);
+			memset((void *)buf, 0, sizeof(buf));
 		}
 	}
 
 	return 0;
-}
-
-size_t coubyte(char *s)
-{
-	size_t b = 0;
-	while (*s) 
-	{
-		b += sizeof(*s);
-		s++;
-	}
-	return b;
-}
-
-// count chars
-size_t couchar(char *s)
-{
-	char *ps = s;
-	while (*ps++);
-	return ps - s - 1;
-}
-
-// count words
-size_t couword(char *s)
-{
-	size_t w = 0;
-
-	while (*s && !isalpha(*s)) s++;
-
-	while (*s)
-	{
-		while (*s && isalpha(*s)) s++;
-		if (*s) w++;
-		while (*s && !isalpha(*s)) s++;
-	}
-
-	return w;
-}
-
-// count lines
-size_t couline(char *s)
-{
-	size_t l = 0;
-
-	while (*s)
-	{
-		if (*s++ == '\n') l++;
-	}
-
-	return l;
 }
