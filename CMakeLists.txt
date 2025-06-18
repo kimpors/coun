@@ -4,5 +4,5 @@ project(coun LANGUAGES C)
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(C_STANDARD 23)
 
-add_executable(${PROJECT_NAME} src/main.c)
+add_executable(${PROJECT_NAME} src/main.c src/arg.c)
 target_include_directories(${PROJECT_NAME} PUBLIC include)

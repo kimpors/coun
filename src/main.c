@@ -1,17 +1,27 @@
 #include <stdio.h>
 #include <ctype.h>
+#include "arg.h"
 
 size_t couword(char *s);
 size_t couline(char *s);
 size_t couchar(char *s);
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	char *s = "\nhello there\n";
 
 	printf("len: %ld\n", couchar(s));
 	printf("words: %ld\n", couword(s));
 	printf("lines: %ld\n", couline(s));
+
+	argeval(argc, argv);
+
+	if (flags & ARG_HELP)
+	{
+		help();
+	}
+
+
 	return 0;
 }
 
