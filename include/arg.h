@@ -2,8 +2,10 @@
 #include <stdio.h>
 
 #define ARG_HELP	(1 << 0)
-
-extern size_t flags;
+#define ARG_FILE	(1 << 1)
+#define ARG_ERROR	(1 << 8)
 
 void help(void);
-char *argeval(int argc, char *argv[]);
+char *pop(void);
+char *peek(void);
+size_t argeval(int argc, char *argv[]);
