@@ -120,4 +120,6 @@ void cprintf(size_t flags)
 	{
 		printf("%ldl\t", buf[LINES]);
 	}
+
+	printf("\n");
 }
