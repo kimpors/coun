@@ -124,7 +124,10 @@ void dirwalk(char *dir, void (*fcn)(char *))
 		}
 		else 
 		{
-			sprintf(name, "%s/%s", dir, dp->d_name);
+			dir[strlen(dir) - 1] == '/'
+				? sprintf(name, "%s%s", dir, dp->d_name)
+				: sprintf(name, "%s/%s", dir, dp->d_name);
+
 			(*fcn)(name);
 		}
 	}
