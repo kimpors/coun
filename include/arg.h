@@ -9,7 +9,8 @@
 #define ARG_LINE	(1 << 5)
 #define ARG_ERROR	(1 << 8)
 
+#define LINE_MAX	1024
+
 void help(void);
 char *fpop(void);
-char *fpeek(void);
 size_t argeval(int argc, char *argv[]);

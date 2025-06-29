@@ -13,7 +13,6 @@
 #define WORDS		2
 #define LINES 		3
 #define BUF_MAX 	4
-#define LINE_MAX	1024
 
 static wchar_t sbuf[LINE_MAX];
 static size_t buf[BUF_MAX]; // buf[0] - bytes, buf[1] - chars,
@@ -42,13 +41,11 @@ int main(int argc, char *argv[])
 	if (flags & ARG_FILE)
 	{
 		char *ps;
-		printf("");
 		while ((ps = fpop()))
 		{
 			if (!(fp = fopen(ps, "r")))
 			{
 				ERROR_MSG("can't open file: %s", ps);
-				fclose(fp);
 				return -1;
 			}
 
@@ -57,9 +54,12 @@ int main(int argc, char *argv[])
 			 	coun(sbuf);
 			}
 
-			printf("%s\t", ps);
 			cprintf(flags);
+			flags & ARG_FILE
+				? printf("\t%s\n", ps)
+				: putchar('\n');
 			memset(buf, 0, sizeof(buf));
+			fclose(fp);
 		}
 
 		return 0;
@@ -103,23 +103,21 @@ void cprintf(size_t flags)
 {
 	if (flags & ARG_BYTE)
 	{
-		printf("%ldb\t", buf[BYTES]);
+		printf("%7ldb", buf[BYTES]);
 	}
 
 	if (flags & ARG_CHAR)
 	{
-		printf("%ldc\t", buf[CHARS]);
+		printf("%7ldc", buf[CHARS]);
 	}
 
 	if (flags & ARG_WORD)
 	{
-		printf("%ldw\t", buf[WORDS]);
+		printf("%7ldw", buf[WORDS]);
 	}
 
 	if (flags & ARG_LINE)
 	{
-		printf("%ldl\t", buf[LINES]);
+		printf("%7ldl", buf[LINES]);
 	}
-
-	printf("\n");
 }

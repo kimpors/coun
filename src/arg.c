@@ -1,10 +1,13 @@
+#include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
+#include <sys/stat.h>
+#include "dirent.h"
 #include "error.h"
 #include "arg.h"
 
+
 bool isempty(void);
-char *fpush(char *s);
+void patheval(char *path);
 
 // evaluate arguments and returns flags
 size_t argeval(int argc, char *argv[])
@@ -21,7 +24,7 @@ size_t argeval(int argc, char *argv[])
 
 		if (**argv != '-')
 		{
-			fpush(*argv);
+			patheval(*argv);
 			continue;
 		}
 
@@ -72,11 +75,69 @@ void help(void)
 	printf("\tcoun -bwl file.txt\t| Will read from file and show bytes, words and lines\n");
 }
 
-#define BUF_MAX	12
+char *fpush(char *s);
+void dirwalk(char *dir, void (*fcn)(char *));
+
+void patheval(char *path)
+{
+	struct stat stbuf;
+	if (stat(path, &stbuf) == -1)
+	{
+		ERROR_MSG("can't access %s", path);
+		return;
+	}
+
+	if ((stbuf.st_mode & S_IFMT) == S_IFDIR)
+	{
+		dirwalk(path, patheval);
+		return;
+	}
+
+	fpush(path);
+}
+
+#define MAX_PATH 1024
+
+void dirwalk(char *dir, void (*fcn)(char *))
+{
+	char name[MAX_PATH] = { 0 };
+	struct dirent *dp;
+	DIR *dfd;
+
+	if (!(dfd = opendir(dir)))
+	{
+		ERROR_MSG("can't open %s", dir);
+		return;
+	}
+
+	while ((dp = readdir(dfd)))
+	{
+		if (strcmp(dp->d_name, ".") == 0 ||
+			strcmp(dp->d_name, "..") == 0)
+		{
+			continue;
+		}
+
+		if (strlen(dir) + strlen(dp->d_name) + 2 > sizeof(name))
+		{
+			ERROR_MSG("name %s %s too long", dir, dp->d_name);
+		}
+		else 
+		{
+			sprintf(name, "%s/%s", dir, dp->d_name);
+			(*fcn)(name);
+		}
+	}
+
+	closedir(dfd);
+}
+
+
+#define BUF_MAX	256
 
 struct {
-	unsigned i; 		// index
-	char *d[BUF_MAX];	// data
+	unsigned i; 				// index
+	char d[BUF_MAX][LINE_MAX];	// data
 } buf;
 
 bool isempty(void)
@@ -88,7 +149,7 @@ bool isempty(void)
 char *fpush(char *s)
 {
 	if (buf.i > BUF_MAX - 1) return NULL;
-	buf.d[buf.i] = s;
+	strcpy(buf.d[buf.i], s);
 	return buf.d[buf.i++];
 }
 
@@ -97,11 +158,4 @@ char *fpop(void)
 {
 	if (buf.i < 1) return NULL;
 	return buf.d[--buf.i];
-}
-
-// peek filename
-char *fpeek(void)
-{
-	if (buf.i < 1 || buf.i > BUF_MAX - 1) return NULL;
-	return buf.d[buf.i];
 }
