@@ -138,7 +138,7 @@ void dirwalk(char *dir, void (*fcn)(char *))
 
 #define BUF_MAX	256
 
-struct {
+static struct {
 	unsigned i; 				// index
 	char d[BUF_MAX][LINE_MAX];	// data
 } buf;

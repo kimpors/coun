@@ -14,9 +14,15 @@
 #define LINES 		3
 #define BUF_MAX 	4
 
+static struct {
+	size_t bytes;
+	size_t chars;
+	size_t words;
+	size_t lines;
+} buf;
+
 static wchar_t sbuf[LINE_MAX];
-static size_t buf[BUF_MAX]; // buf[0] - bytes, buf[1] - chars,
-					  		// buf[2] - words, buf[3] - lines
+
 void coun(wchar_t *s);
 void cprintf(size_t flags);
 
@@ -58,7 +64,7 @@ int main(int argc, char *argv[])
 			flags & ARG_FILE
 				? printf("\t%s\n", ps)
 				: putchar('\n');
-			memset(buf, 0, sizeof(buf));
+			memset(&buf, 0, sizeof(buf));
 			fclose(fp);
 		}
 
@@ -69,7 +75,7 @@ int main(int argc, char *argv[])
 	{
 		coun(sbuf);
 		cprintf(flags);
-		memset(buf, 0, sizeof(buf));
+		memset(&buf, 0, sizeof(buf));
 	}
 
 	return 0;
@@ -82,20 +88,20 @@ void coun(wchar_t *s)
 
 	while (*s)
 	{
-		if (*s == '\n') buf[LINES]++;
+		if (*s == '\n') buf.lines++;
 
 		if (iswspace(*s) && isword)
 		{
 			isword = false;
-			buf[WORDS]++;
+			buf.words++;
 		}
 		else
 		{
 			isword = true;
 		}
 
-		buf[CHARS]++;
-		buf[BYTES] += wctomb(mbuf, *s++);
+		buf.chars++;
+		buf.bytes += wctomb(mbuf, *s++);
 	}
 }
 
@@ -103,21 +109,21 @@ void cprintf(size_t flags)
 {
 	if (flags & ARG_BYTE)
 	{
-		printf("%7ldb", buf[BYTES]);
+		printf("%7ldb", buf.bytes);
 	}
 
 	if (flags & ARG_CHAR)
 	{
-		printf("%7ldc", buf[CHARS]);
+		printf("%7ldc", buf.chars);
 	}
 
 	if (flags & ARG_WORD)
 	{
-		printf("%7ldw", buf[WORDS]);
+		printf("%7ldw", buf.words);
 	}
 
 	if (flags & ARG_LINE)
 	{
-		printf("%7ldl", buf[LINES]);
+		printf("%7ldl", buf.lines);
 	}
 }
