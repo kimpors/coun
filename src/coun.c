@@ -31,6 +31,7 @@ Result coun(wchar_t *s)
 		res.bytes += wctomb(mbuf, *s++);
 	}
 
+	if (isword) res.words++;
 	return res;
 }
 
