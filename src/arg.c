@@ -5,7 +5,6 @@
 #include "error.h"
 #include "arg.h"
 
-
 bool isempty(void);
 void patheval(char *path);
 
