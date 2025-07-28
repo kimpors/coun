@@ -24,3 +24,5 @@ target_include_directories(test_coun PUBLIC include)
 
 add_test(NAME Coun1 COMMAND test_coun 0 0 0 0 "")
 add_test(NAME Coun2 COMMAND test_coun 12 12 2 0 "Hello there!")
+add_test(NAME Coun3 COMMAND test_coun 4 2 1 0 " ")
+add_test(NAME Coun4 COMMAND test_coun 8 8 4 4 "t\ne\ns\nt\n")

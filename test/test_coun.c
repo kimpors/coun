@@ -1,10 +1,13 @@
 #include "coun.h"
+#include <locale.h>
 #include <stdio.h>
 
 static wchar_t sbuf[LINE_MAX];
 
 int main(int argc, char *argv[])
 {
+	setlocale(LC_CTYPE, "");
+
 	if (argc < 5) return -1;
 
 	Result a = { 
