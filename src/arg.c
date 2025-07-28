@@ -21,7 +21,7 @@ size_t argeval(int argc, char *argv[])
 			return flags;
 		}
 
-		if (**argv != '-')
+		if (**argv != '-' && **argv != '\0')
 		{
 			patheval(*argv);
 			continue;
