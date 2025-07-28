@@ -2,39 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include <wctype.h>
-#include <stdbool.h>
 #include <string.h>
 #include "error.h"
+#include "coun.h"
 #include "arg.h"
 
-#define BYTES		0
-#define CHARS		1
-#define WORDS		2
-#define LINES 		3
-#define BUF_MAX 	4
-
-static struct {
-	size_t bytes;
-	size_t chars;
-	size_t words;
-	size_t lines;
-} buf;
-
 static wchar_t sbuf[LINE_MAX];
-
-void coun(wchar_t *s);
-void cprintf(size_t flags);
 
 int main(int argc, char *argv[])
 {
 	setlocale(LC_CTYPE, "");
 
-	wint_t c;
 	FILE *fp = stdin;
-	bool isword = false;
-	char mbuf[MB_CUR_MAX];
-
+	Result temp = { 0 }, res = { 0 };
 	size_t flags = argeval(argc, argv);
 
 	if (flags & ARG_ERROR) return -1;
@@ -57,14 +37,17 @@ int main(int argc, char *argv[])
 
 			while (fgetws(sbuf, LINE_MAX, fp))
 			{
-			 	coun(sbuf);
+			 	temp = coun(sbuf);
+				res.bytes += temp.bytes;
+				res.chars += temp.chars;
+				res.words += temp.words;
+				res.lines += temp.lines;
 			}
 
-			cprintf(flags);
+			cprintf(res, flags);
 			flags & ARG_FILE
 				? printf("\t%s\n", ps)
 				: putchar('\n');
-			memset(&buf, 0, sizeof(buf));
 			fclose(fp);
 		}
 
@@ -73,57 +56,9 @@ int main(int argc, char *argv[])
 
 	while (fgetws(sbuf, LINE_MAX, stdin))
 	{
-		coun(sbuf);
-		cprintf(flags);
-		memset(&buf, 0, sizeof(buf));
+		cprintf(coun(sbuf), flags);
+		putchar('\n');
 	}
 
 	return 0;
-}
-
-void coun(wchar_t *s)
-{
-	bool isword = false;
-	char mbuf[MB_CUR_MAX];
-
-	while (*s)
-	{
-		if (*s == '\n') buf.lines++;
-
-		if (iswspace(*s) && isword)
-		{
-			isword = false;
-			buf.words++;
-		}
-		else
-		{
-			isword = true;
-		}
-
-		buf.chars++;
-		buf.bytes += wctomb(mbuf, *s++);
-	}
-}
-
-void cprintf(size_t flags)
-{
-	if (flags & ARG_BYTE)
-	{
-		printf("%7ldb", buf.bytes);
-	}
-
-	if (flags & ARG_CHAR)
-	{
-		printf("%7ldc", buf.chars);
-	}
-
-	if (flags & ARG_WORD)
-	{
-		printf("%7ldw", buf.words);
-	}
-
-	if (flags & ARG_LINE)
-	{
-		printf("%7ldl", buf.lines);
-	}
 }
