@@ -35,7 +35,7 @@ Result coun(wchar_t *s)
 	return res;
 }
 
-void cprintf(Result res, size_t flags)
+void cprint(Result res, size_t flags)
 {
 	if (flags & ARG_TOTAL)
 	{

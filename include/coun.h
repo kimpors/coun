@@ -9,4 +9,4 @@ typedef struct {
 } Result;
 
 Result coun(wchar_t *s);
-void cprintf(Result res, size_t flags);
+void cprint(Result res, size_t flags);

@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 			total.words += res.words;
 			total.lines += res.lines;
 
-			cprintf(res, flags ^ ARG_TOTAL);
+			cprint(res, flags ^ ARG_TOTAL);
 
 			flags & ARG_FILE
 				? printf("\t%s\n", ps)
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 			fclose(fp);
 		}
 
-		cprintf(total, flags);
+		cprint(total, flags);
 		return 0;
 	}
 
@@ -74,10 +74,10 @@ int main(int argc, char *argv[])
 		while (*ps != '\n') ps++;
 		*ps = '\0';
 
-		cprintf(res, flags & ARG_TOTAL ? flags ^ ARG_TOTAL: flags);
+		cprint(res, flags & ARG_TOTAL ? flags ^ ARG_TOTAL: flags);
 		printf("\t%ls\n", sbuf);
 	}
 
-	if (flags & ARG_TOTAL) cprintf(total, flags);
+	if (flags & ARG_TOTAL) cprint(total, flags);
 	return 0;
 }
