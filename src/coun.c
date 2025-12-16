@@ -37,6 +37,16 @@ Result coun(wchar_t *s)
 
 void cprintf(Result res, size_t flags)
 {
+	if (flags & ARG_TOTAL)
+	{
+		printf("Total:");
+		if (flags & ARG_BYTE) printf("%7ldb", res.bytes);
+		if (flags & ARG_CHAR) printf("%7ldc", res.chars);
+		if (flags & ARG_WORD) printf("%7ldw", res.words);
+		if (flags & ARG_LINE) printf("%7ldl", res.lines);		
+		return;
+	}
+
 	if (flags & ARG_BYTE)
 	{
 		printf("%7ldb", res.bytes);

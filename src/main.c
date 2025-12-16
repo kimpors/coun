@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
 	setlocale(LC_CTYPE, "");
 
 	FILE *fp = stdin;
-	Result temp = { 0 }, res = { 0 };
+	Result temp = { 0 };
+	Result total = { 0 }, res = { 0 };
 	size_t flags = argeval(argc, argv);
 
 	if (flags & ARG_ERROR) return -1;
@@ -44,21 +45,39 @@ int main(int argc, char *argv[])
 				res.lines += temp.lines;
 			}
 
-			cprintf(res, flags);
+			total.bytes += res.bytes;
+			total.chars += res.chars;
+			total.words += res.words;
+			total.lines += res.lines;
+
+			cprintf(res, flags ^ ARG_TOTAL);
+
 			flags & ARG_FILE
 				? printf("\t%s\n", ps)
 				: putchar('\n');
 			fclose(fp);
 		}
 
+		cprintf(total, flags);
 		return 0;
 	}
 
 	while (fgetws(sbuf, LINE_MAX, stdin))
 	{
-		cprintf(coun(sbuf), flags);
-		putchar('\n');
+		res = coun(sbuf);
+		total.bytes += res.bytes;
+		total.chars += res.chars;
+		total.words += res.words;
+		total.lines += res.lines;
+
+		wchar_t *ps = sbuf;
+		while (*ps != '\n') ps++;
+		*ps = '\0';
+
+		cprintf(res, flags & ARG_TOTAL ? flags ^ ARG_TOTAL: flags);
+		printf("\t%ls\n", sbuf);
 	}
 
+	if (flags & ARG_TOTAL) cprintf(total, flags);
 	return 0;
 }

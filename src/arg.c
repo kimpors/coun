@@ -35,6 +35,7 @@ size_t argeval(int argc, char *argv[])
 				case 'c': flags |= ARG_CHAR;	break;
 				case 'w': flags |= ARG_WORD;	break;
 				case 'l': flags |= ARG_LINE;	break;
+				case 't': flags |= ARG_TOTAL; 	break;
 				case 'h': flags |= ARG_HELP;	return flags;
 				default:
 						  ERROR_MSG("wrong argument: %s -> %c", *argv, **argv);
@@ -44,7 +45,7 @@ size_t argeval(int argc, char *argv[])
 		}
 	}
 
-	if (!flags)
+	if (!flags || flags == ARG_TOTAL)
 	{
 		flags |= ARG_CHAR;
 		flags |= ARG_WORD;
@@ -64,6 +65,7 @@ void help(void)
 	printf("\t-c\t\t\t| Show only chars\n");
 	printf("\t-w\t\t\t| Show only words\n");
 	printf("\t-l\t\t\t| Show only lines\n");
+	printf("\t-t\t\t\t| Show sum of all files/items\n");
 	printf("\t-h\t\t\t| Show help\n");
 	printf("\t--help\t\t\t| Show help\n");
 
