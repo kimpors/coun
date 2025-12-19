@@ -47,6 +47,7 @@ size_t argeval(int argc, char *argv[])
 
 	if (!flags || flags == ARG_TOTAL)
 	{
+		flags |= ARG_TOTAL;
 		flags |= ARG_CHAR;
 		flags |= ARG_WORD;
 		flags |= ARG_LINE;

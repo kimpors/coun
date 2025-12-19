@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 			total.words += res.words;
 			total.lines += res.lines;
 
-			cprint(res, flags ^ ARG_TOTAL);
+			cprint(res, flags & ARG_TOTAL ? flags ^ ARG_TOTAL : flags);
 
 			flags & ARG_FILE
 				? printf("\t%s\n", ps)
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 			fclose(fp);
 		}
 
-		cprint(total, flags);
+		if (flags & ARG_TOTAL) cprint(total, flags);
 		return 0;
 	}
 
