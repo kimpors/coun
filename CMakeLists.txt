@@ -1,12 +1,18 @@
 cmake_minimum_required(VERSION 3.20.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(coun LANGUAGES C VERSION 1.0.0)
+set(INSTALL_DIR "/usr/local/bin")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_C_STANDARD 23)
+
 
 add_executable(${PROJECT_NAME} src/main.c src/arg.c src/coun.c)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
+install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${INSTALL_DIR})
+
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug)
+endif()
 
 include(CTest)
 enable_testing()
@@ -17,7 +23,8 @@ set(ARG_BYTE 4)
 set(ARG_CHAR 8)
 set(ARG_WORD 16)
 set(ARG_LINE 32)
-set(ARG_ERROR 64)
+set(ARG_TOTAL 64)
+set(ARG_ERROR 128)
 
 add_executable(test_arg test/test_arg.c src/arg.c)
 target_include_directories(test_arg PUBLIC include)
